@@ -6,6 +6,8 @@ use spinners::{Spinner, Spinners};
 
 const CHARA_KEY: &[u8; 512] = include_bytes!("keys/chara_key.bin");
 const CHARA2_KEY: &[u8; 512] = include_bytes!("keys/chara2_key.bin");
+const DB_ELVIS_TRIAL_KEY: &[u8; 512] = include_bytes!("keys/db.elvis.trial_key.bin");
+const UI_ELVIS_KEY: &[u8; 512] = include_bytes!("keys/ui.elvis_key.bin");
 
 #[derive(Parser)]
 #[clap(name = "yagami-decryption-agency")]
@@ -56,6 +58,12 @@ enum ParType {
 
     /// chara2.par (Lost Judgment only).
     Chara2,
+
+    /// db.elvis.trial.par (Like a Dragon: Infinite Wealth demo).
+    DbElvisTrial,
+
+    /// ui.elvis.par (Like a Dragon: Infinite Wealth demo)
+    UiElvis,
 }
 
 fn xor(data: &mut Vec<u8>, key: &[u8]) {
@@ -177,18 +185,22 @@ fn main() {
             match &par[0..4] {
                 b"\xAC\xC5\x8B\x99" => CHARA_KEY,
                 b"\x01\x6E\x58\xE4" => CHARA2_KEY,
+                b"\x5F\x88\x39\x23" => DB_ELVIS_TRIAL_KEY,
+                b"\x92\x4A\xD7\x96" => UI_ELVIS_KEY,
                 _ => {
                     println!();
                     println!("Unable to determine PAR type.");
                     println!("Select a type:");
                     match dialoguer::Select::new()
-                        .items(&["chara.par", "chara2.par"])
+                        .items(&["chara.par", "chara2.par", "db.elvis.trial.par", "ui.elvis.par"])
                         .clear(false)
                         .interact()
                         .expect("PAR type needs to be selected")
                     {
                         0 => CHARA_KEY,
                         1 => CHARA2_KEY,
+                        2 => DB_ELVIS_TRIAL_KEY,
+                        3 => UI_ELVIS_KEY,
                         _ => panic!("Unexpected selection."),
                     }
                 }
@@ -196,6 +208,8 @@ fn main() {
         }
         ParType::Chara => CHARA_KEY,
         ParType::Chara2 => CHARA2_KEY,
+        ParType::DbElvisTrial => DB_ELVIS_TRIAL_KEY,
+        ParType::UiElvis => UI_ELVIS_KEY,
     };
 
     let output_extension: &str;
